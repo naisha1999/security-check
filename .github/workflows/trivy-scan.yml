@@ -55,7 +55,7 @@ jobs:
        
         run: |
 
-          docker build -t vulnerable-python .
+          
           export TRIVY_CACHE_DIR=$PWD/trivy_cache
           if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
               echo "Trivy DB cache not found. Downloading the database..."
@@ -63,4 +63,5 @@ jobs:
           else
               echo "Using cached Trivy DB."
               trivy image --skip-db-update -f json -o trivy-image.json vulnerable-python 
+          fi
 
