@@ -46,10 +46,10 @@ jobs:
           export TRIVY_CACHE_DIR=$PWD/trivy_cache
           if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
               echo "Trivy DB cache not found. Downloading the database..."
-              trivy fs --scanners vuln -f json -o trivy-fs.json .
+              trivy fs --scanners vuln -f json -o trivy-fs.json . > trivy-fs-report.json
           else
               echo "Using cached Trivy DB."
-              trivy fs --scanners vuln --skip-db-update -f json -o trivy-fs.json .
+              trivy fs --scanners vuln --skip-db-update -f json -o trivy-fs.json . > trivy-fs-report.json
           fi
 
       # Run Image Scan
@@ -64,12 +64,19 @@ jobs:
           export TRIVY_CACHE_DIR=$PWD/trivy_cache
           if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
               echo "Trivy DB cache not found. Downloading the database..."
-              trivy image -f json -o trivy-image.json "${{ inputs.imageName }}"
+              trivy image -f json -o trivy-image.json hello-world-python > trivy-image-report.json
           else
               echo "Using cached Trivy DB."
-              trivy image --skip-db-update -f json -o trivy-image.json "${{ inputs.imageName }}"
+              trivy image --skip-db-update -f json -o trivy-image.json hello-world-python > trivy-image-report.json
           fi
 
+      - name: Upload Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-reports
+          path: |
+            trivy-image-report.json
+            trivy-fs-report.json
       # Upload Results to DefectDojo
      
 
