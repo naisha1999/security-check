@@ -23,7 +23,7 @@ jobs:
     steps:
       # Checkout repository (required for filesystem scans)
       - name: Checkout Code
-        if: ${{ inputs.scanType == 'fs' }}
+       
         uses: actions/checkout@v3
 
       # Setup cache for Trivy database
@@ -41,7 +41,7 @@ jobs:
 
       # Run Filesystem Scan
       - name: Run Filesystem Scan
-        if: ${{ inputs.scanType == 'fs' }}
+        
         run: |
           export TRIVY_CACHE_DIR=$PWD/trivy_cache
           if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
@@ -54,7 +54,7 @@ jobs:
 
       # Run Image Scan
       - name: Run Image Scan
-        if: ${{ inputs.scanType == 'image' }}
+       
         run: |
           if [ -z "${{ inputs.imageName }}" ]; then
             echo "Error: imageName is required for image scans."
