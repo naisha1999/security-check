@@ -24,7 +24,7 @@ jobs:
     # Step 1: Build Docker image and scan for vulnerabilities
     - name: Build Docker image
       run: |
-        docker build -t my-app-image:latest .
+        docker build -t hello-world-python .
 
     - name: Scan Docker Image for vulnerabilities
       run: |
