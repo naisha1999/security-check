@@ -15,10 +15,13 @@ on:
         type: string
         
 jobs:
+  
   trivy_scan:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Build an image from Dockerfile
+        run: docker build -t vulnerable-python .
       # Checkout repository (required for filesystem scans)
       - name: Checkout Code
        
