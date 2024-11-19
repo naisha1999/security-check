@@ -1,12 +1,11 @@
-# Example Dockerfile for a Node.js app
-FROM node:16
+# Use an official Python runtime as a base image
+FROM python:3.9-slim
 
+# Set the working directory inside the container
 WORKDIR /app
 
-COPY package*.json ./
+# Create a simple Python script
+RUN echo 'print("Hello, World!")' > hello.py
 
-RUN npm install
-
-COPY . .
-
-CMD ["node", "index.js"]
+# Set the default command to run the Python script
+CMD ["python", "hello.py"]
