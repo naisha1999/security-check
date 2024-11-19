@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Build an image from Dockerfile
-        run: docker build -t vulnerable-python .
+        run: docker build -t vulnerable-python 
       # Checkout repository (required for filesystem scans)
       - name: Checkout Code
        
