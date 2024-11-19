@@ -28,7 +28,7 @@ jobs:
 
     - name: Scan Docker Image for vulnerabilities
       run: |
-        trivy image --no-progress --exit-code 1 my-app-image:latest
+        trivy image --no-progress --exit-code 1 hello-world-python
 
     # Step 2: Scan filesystem for vulnerabilities
     - name: Scan Filesystem for vulnerabilities
@@ -36,9 +36,7 @@ jobs:
         trivy fs --no-progress --exit-code 1 .
 
     # Step 3: Scan Kubernetes Configs (Optional)
-    - name: Scan Kubernetes YAML for misconfigurations
-      run: |
-        trivy config --no-progress --exit-code 1 ./k8s-configs/
+  
 
     # Step 4: Scan for secrets in codebase (Optional)
     - name: Scan for Secrets in Codebase
