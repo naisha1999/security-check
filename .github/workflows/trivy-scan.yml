@@ -4,41 +4,72 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      scanType:
+        description: "Type of scan to perform (fs or image)"
+        required: true
+        type: string
+      imageName:
+        description: "Docker image to scan (for image scan type)"
+        required: true
+        type: string
+        default: hello-world-python
 
 jobs:
-  trivy-scan:
+  trivy_scan:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
+      # Checkout repository (required for filesystem scans)
+      - name: Checkout Code
+        if: ${{ inputs.scanType == 'fs' }}
+        uses: actions/checkout@v3
 
-    - name: Set up Trivy
-      run: |
-        curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.29.0/trivy_0.29.0_Linux-64bit.tar.gz | tar -xzv -C /usr/local/bin
+      # Setup cache for Trivy database
+      - name: Setup Trivy Cache
+        uses: actions/cache@v3
+        with:
+          path: trivy_cache
+          key: trivy-db-cache
 
+      # Install Trivy
+      - name: Install Trivy
+        run: |
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.52.0/trivy_0.52.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.52.0_Linux-64bit.deb
 
-    # Step 1: Build Docker image and scan for vulnerabilities
-    - name: Build Docker image
-      run: |
-        docker build -t hello-world-python .
+      # Run Filesystem Scan
+      - name: Run Filesystem Scan
+        if: ${{ inputs.scanType == 'fs' }}
+        run: |
+          export TRIVY_CACHE_DIR=$PWD/trivy_cache
+          if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
+              echo "Trivy DB cache not found. Downloading the database..."
+              trivy fs --scanners vuln -f json -o trivy-fs.json .
+          else
+              echo "Using cached Trivy DB."
+              trivy fs --scanners vuln --skip-db-update -f json -o trivy-fs.json .
+          fi
 
-    - name: Scan Docker Image for vulnerabilities
-      run: |
-        trivy image --no-progress --exit-code 1 hello-world-python
+      # Run Image Scan
+      - name: Run Image Scan
+        if: ${{ inputs.scanType == 'image' }}
+        run: |
+          if [ -z "${{ inputs.imageName }}" ]; then
+            echo "Error: imageName is required for image scans."
+            exit 1
+          fi
 
-    # Step 2: Scan filesystem for vulnerabilities
-    - name: Scan Filesystem for vulnerabilities
-      run: |
-        trivy fs --no-progress --exit-code 1 .
+          export TRIVY_CACHE_DIR=$PWD/trivy_cache
+          if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
+              echo "Trivy DB cache not found. Downloading the database..."
+              trivy image -f json -o trivy-image.json "${{ inputs.imageName }}"
+          else
+              echo "Using cached Trivy DB."
+              trivy image --skip-db-update -f json -o trivy-image.json "${{ inputs.imageName }}"
+          fi
 
-    # Step 3: Scan Kubernetes Configs (Optional)
-  
+      # Upload Results to DefectDojo
+     
 
-    # Step 4: Scan for secrets in codebase (Optional)
-    - name: Scan for Secrets in Codebase
-      run: |
-        trivy secrets --no-progress --exit-code 1 .
