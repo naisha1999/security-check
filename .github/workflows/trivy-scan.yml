@@ -54,6 +54,7 @@ jobs:
 
       # Run Image Scan
       - name: Run Image Scan
+      
        
         run: |
 
@@ -65,5 +66,14 @@ jobs:
           else
               echo "Using cached Trivy DB."
               trivy image --skip-db-update -f json -o trivy-image.json vulnerable-python 
+          
           fi
+      
+      - name: Upload Vulnerability Scan Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image
+          path: trivy-image.json
+          name1: trivy-fs
+          path1: trivy-fs.json
 
