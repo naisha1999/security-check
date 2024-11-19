@@ -56,10 +56,7 @@ jobs:
       - name: Run Image Scan
        
         run: |
-          if [ -z "${{ inputs.imageName }}" ]; then
-            echo "Error: imageName is required for image scans."
-            exit 1
-          fi
+
 
           export TRIVY_CACHE_DIR=$PWD/trivy_cache
           if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
