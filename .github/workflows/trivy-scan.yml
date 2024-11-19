@@ -14,8 +14,7 @@ on:
         description: "Docker image to scan (for image scan type)"
         required: true
         type: string
-        default: hello-world-python
-
+        
 jobs:
   trivy_scan:
     runs-on: ubuntu-latest
@@ -57,14 +56,14 @@ jobs:
        
         run: |
 
-          docker build -t hello-world-python .
+          docker build -t vulnerable-python .
           export TRIVY_CACHE_DIR=$PWD/trivy_cache
           if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
               echo "Trivy DB cache not found. Downloading the database..."
-              trivy image -f json -o trivy-image.json hello-world-python > trivy-image-report.json
+              trivy image -f json -o trivy-image.json vulnerable-python > trivy-image-report.json
           else
               echo "Using cached Trivy DB."
-              trivy image --skip-db-update -f json -o trivy-image.json hello-world-python > trivy-image-report.json
+              trivy image --skip-db-update -f json -o trivy-image.json vulnerable-python > trivy-image-report.json
           fi
 
       - name: Upload Reports
