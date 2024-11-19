@@ -57,7 +57,7 @@ jobs:
        
         run: |
 
-
+          docker build -t hello-world-python .
           export TRIVY_CACHE_DIR=$PWD/trivy_cache
           if [ -z "$(ls -A $TRIVY_CACHE_DIR)" ]; then
               echo "Trivy DB cache not found. Downloading the database..."
